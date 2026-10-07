@@ -278,11 +278,16 @@
     </section>
 
     <section>
-      <h2>Save</h2>
+      <h2>Save &amp; Share</h2>
 
       <button type="button" onclick="saveEntry()">Save Field Data</button>
       <button class="secondary" type="button" onclick="clearDraft()">Clear Current Draft</button>
 
+      <button id="pdfButton" type="button" onclick="generatePDF()">Generate PDF &amp; Share</button>
+      <button id="sharePDFButton" type="button" onclick="sharePreparedPDF()" hidden>Share PDF</button>
+      <button id="downloadPDFButton" class="secondary" type="button" onclick="downloadPreparedPDF()" hidden>Download PDF</button>
+      <div id="pdfStatus" class="status" role="status" aria-live="polite"></div>
+      <div class="info-box">Field observation only — not a laboratory analytical result.</div>
       <div id="saveStatus" class="status">No entry saved yet.</div>
     </section>
   </main>
@@ -360,6 +365,25 @@
     let longitude = null;
     let photoStream = null;
     let selectedPhotoBlob = null;
+    let observationTimestamp = null;
+    let lastSavedObservation = null;
+    let preparedPDF = null;
+    function markObservation() {
+      observationTimestamp ||= new Date().toISOString();
+      preparedPDF = null;
+      document.getElementById('sharePDFButton').hidden = true;
+      document.getElementById('downloadPDFButton').hidden = true;
+      document.getElementById('pdfStatus').textContent = '';
+    }
+    document.getElementById('notes').addEventListener('input', markObservation);
+    function observationSnapshot() {
+      const notes = document.getElementById('notes').value.trim();
+      if (selectedPhotoBlob || notes || latitude !== null) {
+        observationTimestamp ||= new Date().toISOString();
+        return {photo: selectedPhotoBlob, notes, latitude, longitude, timestamp: observationTimestamp};
+      }
+      return lastSavedObservation;
+    }
 
     async function requireLogin() {
       const { data, error } = await supabaseClient.auth.getUser();
@@ -384,6 +408,7 @@
 
       navigator.geolocation.getCurrentPosition(
         p => {
+          markObservation();
           latitude = p.coords.latitude;
           longitude = p.coords.longitude;
 
@@ -474,6 +499,7 @@
         return;
       }
 
+      markObservation();
       selectedPhotoBlob = blob;
       showPhotoPreview(blob);
 
@@ -493,6 +519,7 @@
         return;
       }
 
+      markObservation();
       selectedPhotoBlob = file;
       showPhotoPreview(file);
     }
@@ -556,13 +583,13 @@
       return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}_${p(d.getHours())}-${p(d.getMinutes())}-${p(d.getSeconds())}`;
     }
 
-    async function uploadPhoto() {
-      if (!selectedPhotoBlob) {
+    async function uploadPhoto(photo = selectedPhotoBlob) {
+      if (!photo) {
         return null;
       }
 
       const file = await compressImage(
-        selectedPhotoBlob,
+        photo,
         `EcoExposure_FieldData_${timestampString()}`
       );
 
@@ -610,12 +637,13 @@
         return;
       }
 
+      const savedObservation = observationSnapshot();
       try {
         let photoPath = null;
 
-        if (selectedPhotoBlob) {
+        if (savedObservation.photo) {
           status.textContent = "Uploading photo...";
-          photoPath = await uploadPhoto();
+          photoPath = await uploadPhoto(savedObservation.photo);
         }
 
         status.textContent = "Saving entry...";
@@ -626,9 +654,9 @@
             .insert({
               user_id: currentUser.id,
               file_path: photoPath,
-              notes: notes || null,
-              latitude: latitude,
-              longitude: longitude
+              notes: savedObservation.notes || null,
+              latitude: savedObservation.latitude,
+              longitude: savedObservation.longitude
             });
 
         if (error) {
@@ -639,7 +667,11 @@
 
         status.textContent = "✅ Field Data saved.";
 
-        clearDraft(false);
+        lastSavedObservation = savedObservation;
+        // Preserve any new edits made while this save was in progress.
+        const latest = observationSnapshot();
+        if (latest.photo === savedObservation.photo && latest.notes === savedObservation.notes &&
+            latest.latitude === savedObservation.latitude && latest.longitude === savedObservation.longitude) clearDraft(false);
 
       } catch (e) {
         console.error(e);
@@ -648,6 +680,8 @@
     }
 
     function clearDraft(updateStatus = true) {
+      observationTimestamp = null;
+      if (updateStatus) { lastSavedObservation = null; markObservation(); observationTimestamp = null; }
       document.getElementById("notes").value = "";
       document.getElementById("fileInput").value = "";
 
@@ -673,6 +707,157 @@
       if (updateStatus) {
         document.getElementById("saveStatus").textContent =
           "Draft cleared.";
+      }
+    }
+
+    // Self-contained client-side PDF: rasterized report pages preserve Unicode notes.
+    function loadReportImage(src) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error('Could not load a report image. Check the photo format and logo path.'));
+        img.src = src;
+      });
+    }
+    async function buildObservationPDF(observation) {
+      const logo = await loadReportImage('images/ecotera-asia-logo-300dpi-print.png');
+      let photo = null;
+      if (observation.photo) {
+        const url = URL.createObjectURL(observation.photo);
+        try { photo = await loadReportImage(url); }
+        finally { URL.revokeObjectURL(url); }
+      }
+      const pages = [];
+      let canvas, ctx, y;
+      const width = 1240, height = 1754, margin = 85, bottom = 1530;
+      function newPage() {
+        if (canvas) pages.push(canvas.toDataURL('image/jpeg', 0.92));
+        canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
+        ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, width, height);
+        const scale = Math.min(300 / logo.naturalWidth, 100 / logo.naturalHeight);
+        ctx.drawImage(logo, margin, 55, logo.naturalWidth * scale, logo.naturalHeight * scale);
+        ctx.fillStyle = '#115e59'; ctx.font = 'bold 36px Arial';
+        ctx.fillText('Field Observation', margin, 215);
+        ctx.fillStyle = '#4b5563'; ctx.font = '22px Arial';
+        ctx.fillText('Ecotera Asia', margin, 252);
+        ctx.fillStyle = '#374151'; ctx.font = '20px Arial';
+        ctx.fillText('Field observation only — not a laboratory analytical result.', margin, 1610);
+        ctx.fillText('hello@ecoteraasia.com  |  ecoteraasia.com', margin, 1650);
+        ctx.fillText('Page ' + (pages.length + 1), margin, 1690);
+        y = 310;
+      }
+      function line(text, bold = false) {
+        if (y + 36 > bottom) newPage();
+        ctx.fillStyle = '#1f2933'; ctx.font = (bold ? 'bold ' : '') + '25px Arial';
+        ctx.fillText(text, margin, y); y += 36;
+      }
+      function wrapped(text) {
+        // Wrap by Unicode code point, including long unbroken words and CJK text.
+        for (const paragraph of text.replace(/\r\n?/g, '\n').split('\n')) {
+          let current = '';
+          for (const char of paragraph) {
+            ctx.font = '25px Arial';
+            if (current && ctx.measureText(current + char).width > width - margin * 2) {
+              line(current); current = '';
+            }
+            current += char;
+          }
+          line(current);
+        }
+      }
+      newPage();
+      line('Observation timestamp', true);
+      wrapped(new Date(observation.timestamp).toLocaleString() + ' (' + observation.timestamp + ')');
+      y += 18;
+      line('GPS coordinates', true);
+      wrapped(Number.isFinite(observation.latitude) && Number.isFinite(observation.longitude)
+        ? 'Latitude: ' + observation.latitude.toFixed(6) + '   Longitude: ' + observation.longitude.toFixed(6)
+        : 'Not captured');
+      y += 18;
+      line('Photo', true);
+      if (photo) {
+        const scale = Math.min((width - 2 * margin) / photo.naturalWidth, 620 / photo.naturalHeight);
+        const w = photo.naturalWidth * scale, h = photo.naturalHeight * scale;
+        if (y + h + 30 > bottom) newPage();
+        ctx.drawImage(photo, margin, y, w, h); y += h + 45;
+      } else { line('No photo added'); y += 18; }
+      line('Field notes', true);
+      wrapped(observation.notes || 'No notes added');
+      pages.push(canvas.toDataURL('image/jpeg', 0.92));
+      return encodeReportPDF(pages, width, height);
+    }
+    function encodeReportPDF(pages, width, height) {
+      const encoder = new TextEncoder(), parts = [], offsets = [0];
+      let length = 0;
+      const append = value => {
+        const bytes = typeof value === 'string' ? encoder.encode(value) : value;
+        parts.push(bytes); length += bytes.length;
+      };
+      const object = (id, content) => { offsets[id] = length; append(id + ' 0 obj\n' + content + '\nendobj\n'); };
+      append('%PDF-1.4\n');
+      object(1, '<< /Type /Catalog /Pages 2 0 R >>');
+      object(2, '<< /Type /Pages /Count ' + pages.length + ' /Kids [' + pages.map((_, i) => (3 + i * 3) + ' 0 R').join(' ') + '] >>');
+      pages.forEach((data, i) => {
+        const id = 3 + i * 3;
+        object(id, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /XObject << /Photo ' + (id + 1) + ' 0 R >> >> /Contents ' + (id + 2) + ' 0 R >>');
+        const raw = atob(data.split(',')[1]);
+        const bytes = Uint8Array.from(raw, c => c.charCodeAt(0));
+        offsets[id + 1] = length;
+        append((id + 1) + ' 0 obj\n<< /Type /XObject /Subtype /Image /Width ' + width + ' /Height ' + height + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + bytes.length + ' >>\nstream\n');
+        append(bytes); append('\nendstream\nendobj\n');
+        const commands = 'q 595.28 0 0 841.89 0 0 cm /Photo Do Q\n';
+        object(id + 2, '<< /Length ' + encoder.encode(commands).length + ' >>\nstream\n' + commands + 'endstream');
+      });
+      const xref = length, count = 3 + pages.length * 3;
+      append('xref\n0 ' + count + '\n0000000000 65535 f \n');
+      for (let i = 1; i < count; i++) append(String(offsets[i]).padStart(10, '0') + ' 00000 n \n');
+      append('trailer\n<< /Size ' + count + ' /Root 1 0 R >>\nstartxref\n' + xref + '\n%%EOF\n');
+      return new Blob(parts, {type: 'application/pdf'});
+    }
+    function supportsPDFSharing(file) {
+      try { return !!(navigator.share && navigator.canShare && navigator.canShare({files: [file]})); }
+      catch (_) { return false; }
+    }
+    async function generatePDF() {
+      const status = document.getElementById('pdfStatus'), button = document.getElementById('pdfButton');
+      const observation = observationSnapshot();
+      if (!observation) { status.textContent = 'Add a photo, GPS location or notes first.'; return; }
+      button.disabled = true; preparedPDF = null;
+      document.getElementById('sharePDFButton').hidden = true;
+      document.getElementById('downloadPDFButton').hidden = true;
+      status.textContent = 'Generating PDF…';
+      try {
+        const blob = await buildObservationPDF(observation);
+        const filename = 'Ecotera_Field_Observation_' + observation.timestamp.replace(/[:.]/g, '-') + '.pdf';
+        preparedPDF = new File([blob], filename, {type: 'application/pdf'});
+        document.getElementById('downloadPDFButton').hidden = false;
+        if (supportsPDFSharing(preparedPDF)) {
+          document.getElementById('sharePDFButton').hidden = false;
+          status.textContent = 'PDF ready. Tap Share PDF to choose an app, or Download PDF.';
+        } else { downloadPreparedPDF(); }
+      } catch (e) { status.textContent = 'PDF could not be generated: ' + e.message; }
+      finally { button.disabled = false; }
+    }
+    function downloadPreparedPDF() {
+      if (!preparedPDF) return;
+      const url = URL.createObjectURL(preparedPDF), link = document.createElement('a');
+      link.href = url; link.download = preparedPDF.name;
+      document.body.appendChild(link); link.click(); link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+      document.getElementById('pdfStatus').textContent = 'PDF download started. You can download it again below.';
+    }
+    async function sharePreparedPDF() {
+      if (!preparedPDF) return;
+      if (!supportsPDFSharing(preparedPDF)) { downloadPreparedPDF(); return; }
+      const status = document.getElementById('pdfStatus');
+      try {
+        // No asynchronous preparation here: preserve the tap's native-share activation.
+        await navigator.share({files: [preparedPDF], title: 'Ecotera Asia Field Observation'});
+        status.textContent = 'PDF shared.';
+      } catch (e) {
+        if (e.name === 'AbortError') status.textContent = 'Sharing cancelled. Your PDF is still ready.';
+        else { downloadPreparedPDF(); status.textContent = 'Sharing unavailable. PDF download started.'; }
       }
     }
 
