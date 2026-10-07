@@ -861,7 +861,8 @@
       }
     }
 
-    requireLogin();
+    // Visitors can capture data and generate a PDF without signing in.
+    // saveEntry() still requires login before writing to Supabase.
   </script>
 </body>
 </html>
