@@ -48,7 +48,7 @@
 <body>
   <header>
     <div class="page-title"><h1>New EcoExposure Sample</h1><button type="button" class="help-button" aria-label="How New Sample works" aria-haspopup="dialog" onclick="document.getElementById('sampleHelpDialog').showModal()">ⓘ</button></div>
-    <p>Enter sample details, add photos, and save your sample.</p>
+    <p>Add sample details and GPS, then view the example comparison.</p>
   </header>
 
   <main>
@@ -73,10 +73,6 @@
         <option>Brackish</option>
         <option selected>Other</option>
       </select>
-
-      <label>Kit Verification</label>
-      <button type="button" onclick="scanQRCode()">📷 Scan Kit QR Code</button>
-      <div id="qrStatus" class="info-box">Kit not yet verified.</div>
 
       <button type="button" onclick="captureGPS()">Capture GPS Location</button>
       <div id="gpsStatus" class="info-box">No GPS location captured yet.</div>
@@ -109,49 +105,49 @@
 
     <section>
       <h2>Images</h2><div class="info-box"><strong>Shadows or uneven light?</strong> Pop open the photo box and use it. Check the preview before saving. <a class="context-help" href="learn.html#photo-guide">Photo tips →</a></div>
-      <div class="info-box">Photos must be taken live in the app. Existing photos cannot be selected from the device.</div>
+      <div class="info-box">Demo: tap Take Photo to view the supplied sample comparison. No camera opens and no photo is uploaded.</div>
 
       <div class="image-slot">
         <strong>Top View - White Background</strong>
-        <button class="camera-btn" type="button" onclick="openPhotoCamera('topImage','topPreview','Top View - White Background')">📷 Take Photo</button>
+        <button class="camera-btn" type="button" onclick="showExampleResult()">📷 Take Photo</button>
         <div id="topImageCaptured" class="captured-label">✓ Photo captured</div>
         <img id="topPreview" class="preview" alt="Top view preview" />
       </div>
 
       <div class="image-slot">
         <strong>Top View – Grid Background</strong>
-        <button class="camera-btn" type="button" onclick="openPhotoCamera('topGridImage','topGridPreview','Top View – Grid Background')">📷 Take Photo</button>
+        <button class="camera-btn" type="button" onclick="showExampleResult()">📷 Take Photo</button>
         <div id="topGridImageCaptured" class="captured-label">✓ Photo captured</div>
         <img id="topGridPreview" class="preview" alt="Top grid preview" />
       </div>
 
       <div class="image-slot">
         <strong>Side View</strong>
-        <button class="camera-btn" type="button" onclick="openPhotoCamera('sideImage','sidePreview','Side View')">📷 Take Photo</button>
+        <button class="camera-btn" type="button" onclick="showExampleResult()">📷 Take Photo</button>
         <div id="sideImageCaptured" class="captured-label">✓ Photo captured</div>
         <img id="sidePreview" class="preview" alt="Side view preview" />
       </div>
 
       <div class="image-slot">
         <strong>Close-Up</strong>
-        <button class="camera-btn" type="button" onclick="openPhotoCamera('closeUpImage','closeUpPreview','Close-Up')">📷 Take Photo</button>
+        <button class="camera-btn" type="button" onclick="showExampleResult()">📷 Take Photo</button>
         <div id="closeUpImageCaptured" class="captured-label">✓ Photo captured</div>
         <img id="closeUpPreview" class="preview" alt="Close-up preview" />
       </div>
 
       <div class="image-slot">
         <strong>Other</strong>
-        <button class="camera-btn" type="button" onclick="openPhotoCamera('otherImage','otherPreview','Other')">📷 Take Photo</button>
+        <button class="camera-btn" type="button" onclick="showExampleResult()">📷 Take Photo</button>
         <div id="otherImageCaptured" class="captured-label">✓ Photo captured</div>
         <img id="otherPreview" class="preview" alt="Other preview" />
       </div>
     </section>
 
     <section>
-      <h2>Save</h2>
-      <button type="button" onclick="saveEntry()">Save Sample</button>
+      <h2>View Example</h2>
+      <button type="button" onclick="showExampleResult()">View Sample Comparison</button>
       <button class="secondary" type="button" onclick="clearDraft()">Clear Current Draft</button>
-      <div id="saveStatus" class="status">No sample saved yet.</div>
+      <div id="saveStatus" class="status">Demo mode — details stay on this page and are not saved.</div>
     </section>
   </main>
 
@@ -166,752 +162,49 @@
 
 
   <dialog id="sampleHelpDialog" aria-labelledby="sampleHelpTitle">
-    <div class="dialog-inner">
-      <h2 id="sampleHelpTitle">How New Sample works</h2>
-      <p>Use this page to save an EcoExposure sample with a registered kit.</p><aside class="assay-warning" aria-label="Important assay instruction"><strong>DO NOT STIR, SWIRL, OR MIX</strong><p>Zero-shear matters: mixing disrupts the assay. If powder clumps remain at the surface, gently poke only those surface clumps. Do not stir or mix the liquid.</p></aside>
-      <ol>
-        <li><strong>Verify a kit.</strong> Scan inside the app or enter the printed manual code. Wait for the verified message.</li>
-        <li><strong>Match the stage.</strong> Use PRE before reagent or POST after reaction, following your kit instructions for preparation and timing.</li>
-        <li><strong>Add details.</strong> Enter your name and sample label. Add notes and location; use the same label for matching PRE/POST observations.</li>
-        <li><strong>Take photos.</strong> Use the in-app camera and check the preview. For shadows or uneven lighting, pop open the photo box. At least one photo is required.</li>
-        <li><strong>Save and review.</strong> Wait for confirmation, then check My Data. Each successful save uses one submission from that code.</li>
-      </ol>
-      <p>For notes or a field photo without a kit, use <a href="new_field_data.html">Field</a>. To rehearse without saving scientific data or using a kit submission, use <a href="practice.html">Practice</a>.</p>
-      <p><a href="learn.html">Open the Learn guide</a></p>
+    <div class="dialog-inner"><h2 id="sampleHelpTitle">How New Sample works</h2>
+      <p>This demo does not require a kit code or sign-in.</p>
+      <ol><li>Add sample details and optional GPS.</li><li>Tap any Take Photo button to view the supplied before/after image and optical-metric table.</li><li>Return to New Sample or Home.</li></ol>
+      <p>The comparison is a fixed example. It does not analyze your water, camera image, notes, or GPS. Details are not uploaded or saved.</p>
       <form method="dialog"><button type="submit">Got it</button></form>
     </div>
   </dialog>
-
-  <dialog id="photoDialog">
+  <dialog id="exampleDialog" aria-labelledby="exampleTitle" style="max-height:calc(100dvh - 24px);overflow:auto">
     <div class="dialog-inner">
-      <h2 id="photoDialogTitle">Take Photo</h2>
-      <video id="photoCameraPreview" autoplay playsinline muted style="width:100%;max-height:65vh;background:#000;border-radius:12px;"></video>
-      <div id="photoCameraStatus" class="status">Opening camera...</div>
-      <div class="dialog-actions">
-        <button type="button" onclick="takeLivePhoto()">Take Photo</button>
-        <button type="button" class="secondary" onclick="closePhotoCamera()">Cancel</button>
-      </div>
+      <h2 id="exampleTitle">Example Sample Comparison</h2>
+      <p class="info-box">Demonstration only — supplied reference image, no live analysis.</p>
+      <img src="images/demo/sample-comparison.png" alt="Reference comparison: clear unfiltered water labeled 10,000 MP/L and filtered water before assay, both after 60 minutes, and computer-vision optical metrics A, B and C." style="display:block;width:100%;max-width:400px;height:auto;margin:16px auto">
+      <details><summary>Read the reference table</summary>
+        <table style="width:100%;text-align:left;border-collapse:collapse;margin-top:12px"><caption>Computer-vision analysis from supplied image</caption>
+          <thead><tr><th>Metric</th><th>Before → After</th><th>Change</th></tr></thead>
+          <tbody><tr><th>Optical Metric A</th><td>0.023 → 0.087</td><td>3.78×</td></tr><tr><th>Optical Metric B</th><td>0.106 → 0.176</td><td>+65%</td></tr><tr><th>Optical Metric C</th><td>0.440 → 0.553</td><td>+26%</td></tr></tbody>
+        </table>
+      </details>
+      <p class="info-box">Field observation only — not a laboratory analytical result.</p>
+      <form method="dialog"><button type="submit">Back to New Sample</button></form>
+      <a href="index.html" style="display:block;text-align:center;margin:16px 0;color:#0f766e;font-weight:700">Back to Home</a>
     </div>
   </dialog>
-
-  <dialog id="qrDialog">
-    <div class="dialog-inner">
-      <h2>Scan EcoExposure Kit</h2>
-      <div id="qrReader"></div>
-
-      <label for="manualKitCode">Or enter the kit code</label>
-      <input id="manualKitCode" placeholder="EA-KIT-000001" autocomplete="off" />
-
-      <div id="qrDialogStatus" class="status"></div>
-
-      <div class="dialog-actions">
-        <button type="button" onclick="verifyManualKitCode()">Verify Code</button>
-        <button type="button" class="secondary" onclick="closeQRScanner()">Cancel</button>
-      </div>
-    </div>
-  </dialog>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-
   <script>
-	const SUPABASE_URL = "https://qvmgrchkmmezpwhlfxjv.supabase.co";
-	const SUPABASE_KEY = "sb_publishable_3M-2qrVCnjO9XfjsBCUf6g_l1wSuwVu";
-
-
-    const supabaseClient = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
-
-    let latitude = null,
-        longitude = null,
-        currentUser = null,
-        currentKit = null,
-        qrScanner = null,
-        photoStream = null,
-        activePhotoSlot = null,
-        activePhotoPreview = null;
-
-    const capturedPhotos = {};
-
-    const imageSlots = {
-      topImage: "top",
-      topGridImage: "top_grid",
-      sideImage: "side",
-      closeUpImage: "closeup",
-      otherImage: "other"
-    };
-
-    async function requireLogin() {
-      const { data, error } = await supabaseClient.auth.getUser();
-
-      if (error || !data.user) {
-        window.location.replace("login.html");
-        return;
-      }
-
-      currentUser = data.user;
+    let latitude = null, longitude = null;
+    function showExampleResult(){document.getElementById('exampleDialog').showModal();}
+    function captureGPS(){
+      const box=document.getElementById('gpsStatus');
+      if(!navigator.geolocation){box.textContent='GPS is not supported in this browser.';return;}
+      box.textContent='Requesting GPS location…';
+      navigator.geolocation.getCurrentPosition(p=>{
+        latitude=p.coords.latitude;longitude=p.coords.longitude;
+        box.textContent='Location captured: '+latitude.toFixed(5)+', '+longitude.toFixed(5);
+      },e=>{box.textContent='GPS error: '+e.message;},{enableHighAccuracy:true,timeout:10000,maximumAge:0});
     }
-
-    async function scanQRCode() {
-      const dialog = document.getElementById("qrDialog");
-
-      document.getElementById("qrDialogStatus").textContent = "";
-      document.getElementById("manualKitCode").value = "";
-
-      dialog.showModal();
-
-      try {
-        qrScanner = new Html5Qrcode("qrReader");
-
-        await qrScanner.start(
-          { facingMode: "environment" },
-          { fps: 10, qrbox: { width: 220, height: 220 } },
-
-          async decodedText => {
-            await verifyKitCode(decodedText);
-
-            if (currentKit) {
-              closeQRScanner();
-            }
-          },
-
-          () => {}
-        );
-      } catch (e) {
-        document.getElementById("qrDialogStatus").textContent =
-          "Camera unavailable. Enter the kit code manually below.";
-      }
+    function clearDraft(){
+      ['userName','location','sampleID','notes'].forEach(id=>document.getElementById(id).value='');
+      document.getElementById('waterType').value='Other';
+      document.querySelectorAll('input[name="captureStage"]').forEach(input=>input.checked=false);
+      latitude=null;longitude=null;
+      document.getElementById('gpsStatus').textContent='No GPS location captured yet.';
+      document.getElementById('saveStatus').textContent='Draft cleared. Demo details are not saved.';
     }
-
-    async function closeQRScanner() {
-      if (qrScanner) {
-        try {
-          if (qrScanner.isScanning) await qrScanner.stop();
-        } catch (e) {}
-
-        try {
-          await qrScanner.clear();
-        } catch (e) {}
-
-        qrScanner = null;
-      }
-
-      document.getElementById("qrDialog").close();
-    }
-
-    async function verifyManualKitCode() {
-      await verifyKitCode(
-        document.getElementById("manualKitCode").value
-      );
-
-      if (currentKit) {
-        await closeQRScanner();
-      }
-    }
-
-    function normalizeKitInput(rawCode) {
-      const raw = String(rawCode || "").trim();
-
-      if (!raw) {
-        return {
-          qrToken: "",
-          manualCode: ""
-        };
-      }
-
-      let qrToken = raw;
-
-      try {
-        const scannedURL = new URL(raw);
-
-        qrToken =
-          scannedURL.searchParams.get("kit") ||
-          scannedURL.searchParams.get("token") ||
-          scannedURL.searchParams.get("qr_token") ||
-          raw;
-      } catch (e) {
-        // The scanned value was not a URL. That is fine.
-      }
-
-      const manualCode = raw
-        .toUpperCase()
-        .replace(/[^A-Z0-9]/g, "");
-
-      return {
-        qrToken: String(qrToken || "").trim(),
-        manualCode
-      };
-    }
-
-    async function verifyKitCode(rawCode) {
-      const input = normalizeKitInput(rawCode);
-
-      const dialogStatus =
-        document.getElementById("qrDialogStatus");
-
-      const pageStatus =
-        document.getElementById("qrStatus");
-
-      currentKit = null;
-
-      if (!input.qrToken && !input.manualCode) {
-        dialogStatus.textContent =
-          "Enter or scan a kit code.";
-        return;
-      }
-
-      dialogStatus.textContent =
-        "Checking kit...";
-
-      const { data, error } =
-        await supabaseClient.rpc(
-          "check_kit_v2",
-          {
-            p_qr_token: input.qrToken,
-            p_manual_code: input.manualCode
-          }
-        );
-
-      if (error) {
-        console.error("Kit verification error:", error);
-
-        dialogStatus.textContent =
-          `Kit check failed: ${error.message}`;
-
-        pageStatus.textContent =
-          "Kit not verified.";
-
-        return;
-      }
-
-      const kit =
-        data && data[0] ? data[0] : null;
-
-      if (!kit) {
-        dialogStatus.textContent =
-          "Kit code not recognized.";
-
-        pageStatus.textContent =
-          "Kit not verified.";
-
-        return;
-      }
-
-      if (
-        kit.kit_status !== "active" ||
-        Number(kit.remaining_samples) <= 0
-      ) {
-        dialogStatus.textContent =
-          "This kit has no submissions remaining. Please scan another QR code to activate a new kit.";
-
-        pageStatus.innerHTML =
-          `<span class="kit-error">${kit.kit_code}: no submissions remaining.</span>`;
-
-        return;
-      }
-
-      currentKit = kit;
-
-      pageStatus.innerHTML =
-        `<span class="kit-ok">Verified: ${kit.kit_code} - ${kit.remaining_samples} submission${Number(kit.remaining_samples) === 1 ? "" : "s"} remaining.</span>`;
-
-      dialogStatus.textContent =
-        "Kit verified.";
-    }
-
-    function captureGPS() {
-      const box =
-        document.getElementById("gpsStatus");
-
-      if (!navigator.geolocation) {
-        box.textContent =
-          "GPS is not supported in this browser.";
-        return;
-      }
-
-      box.textContent =
-        "Requesting GPS location...";
-
-      navigator.geolocation.getCurrentPosition(
-        p => {
-          latitude = p.coords.latitude;
-          longitude = p.coords.longitude;
-
-          box.textContent =
-            `Location captured: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
-        },
-
-        e => {
-          box.textContent =
-            `GPS error: ${e.message}`;
-        },
-
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
-        }
-      );
-    }
-
-    async function openPhotoCamera(slotID, previewID, title) {
-      activePhotoSlot = slotID;
-      activePhotoPreview = previewID;
-
-      const dialog = document.getElementById("photoDialog");
-      const video = document.getElementById("photoCameraPreview");
-      const status = document.getElementById("photoCameraStatus");
-
-      document.getElementById("photoDialogTitle").textContent = title;
-      status.textContent = "Opening camera...";
-      dialog.showModal();
-
-      try {
-        photoStream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: { ideal: "environment" },
-            width: { ideal: 1920 },
-            height: { ideal: 1080 }
-          },
-          audio: false
-        });
-
-        video.srcObject = photoStream;
-        await video.play();
-        status.textContent = "Position the sample, then tap Take Photo.";
-      } catch (e) {
-        console.error("Photo camera error:", e);
-        status.textContent =
-          "Camera unavailable. Please allow camera access in your browser settings.";
-      }
-    }
-
-    function stopPhotoStream() {
-      if (photoStream) {
-        photoStream.getTracks().forEach(track => track.stop());
-        photoStream = null;
-      }
-
-      const video = document.getElementById("photoCameraPreview");
-      video.srcObject = null;
-    }
-
-    function closePhotoCamera() {
-      stopPhotoStream();
-
-      const dialog = document.getElementById("photoDialog");
-      if (dialog.open) dialog.close();
-
-      activePhotoSlot = null;
-      activePhotoPreview = null;
-    }
-
-    async function takeLivePhoto() {
-      const video = document.getElementById("photoCameraPreview");
-      const status = document.getElementById("photoCameraStatus");
-
-      if (!photoStream || !video.videoWidth || !video.videoHeight) {
-        status.textContent = "Camera is not ready yet.";
-        return;
-      }
-
-      const canvas = document.createElement("canvas");
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      const blob = await new Promise(resolve => {
-        canvas.toBlob(resolve, "image/jpeg", 0.92);
-      });
-
-      if (!blob) {
-        status.textContent = "Photo capture failed. Please try again.";
-        return;
-      }
-
-      capturedPhotos[activePhotoSlot] = blob;
-
-      const preview = document.getElementById(activePhotoPreview);
-      if (preview.dataset.objectUrl) {
-        URL.revokeObjectURL(preview.dataset.objectUrl);
-      }
-
-      const objectUrl = URL.createObjectURL(blob);
-      preview.src = objectUrl;
-      preview.dataset.objectUrl = objectUrl;
-      preview.style.display = "block";
-
-      const capturedLabel = document.getElementById(activePhotoSlot + "Captured");
-      if (capturedLabel) capturedLabel.style.display = "block";
-
-      stopPhotoStream();
-      document.getElementById("photoDialog").close();
-
-      activePhotoSlot = null;
-      activePhotoPreview = null;
-    }
-
-    async function compressImage(blob, baseName) {
-      const bitmap = await createImageBitmap(blob);
-      const TARGET_BYTES = 180 * 1024;
-      const MAX_BYTES = 200 * 1024;
-      const MIN_DIMENSION = 480;
-      let maxDimension = 1400;
-      let quality = 0.78;
-      let compressedBlob = null;
-      let format = "image/webp";
-
-      try {
-        for (let attempt = 0; attempt < 24; attempt++) {
-          const scale = Math.min(
-            1,
-            maxDimension / Math.max(bitmap.width, bitmap.height)
-          );
-
-          const width = Math.max(1, Math.round(bitmap.width * scale));
-          const height = Math.max(1, Math.round(bitmap.height * scale));
-
-          const canvas = document.createElement("canvas");
-          canvas.width = width;
-          canvas.height = height;
-
-          const ctx = canvas.getContext("2d");
-          if (!ctx) {
-            throw new Error("Image compression is not supported by this browser.");
-          }
-
-          ctx.drawImage(bitmap, 0, 0, width, height);
-
-          compressedBlob = await new Promise(resolve => {
-            canvas.toBlob(resolve, format, quality);
-          });
-
-          if (!compressedBlob) {
-            throw new Error("Image compression failed.");
-          }
-
-          // Some browsers return JPEG when asked for WebP. Use the actual
-          // encoded format instead of labeling those bytes as WebP.
-          if (attempt === 0 && compressedBlob.type !== "image/webp") {
-            format = "image/jpeg";
-            if (compressedBlob.type !== format) {
-              compressedBlob = await new Promise(resolve => {
-                canvas.toBlob(resolve, format, quality);
-              });
-              if (!compressedBlob || compressedBlob.type !== format) {
-                throw new Error("This browser could not compress the image.");
-              }
-            }
-          }
-
-          if (compressedBlob.size <= TARGET_BYTES) {
-            break;
-          }
-
-          if (quality > 0.48) {
-            quality = Math.max(0.48, quality - 0.10);
-          } else if (maxDimension > MIN_DIMENSION) {
-            maxDimension = Math.max(MIN_DIMENSION, Math.round(maxDimension * 0.8));
-            quality = 0.72;
-          } else {
-            quality = Math.max(0.25, quality - 0.08);
-          }
-        }
-      } finally {
-        if (bitmap.close) bitmap.close();
-      }
-
-      if (!compressedBlob) {
-        throw new Error("Image compression failed.");
-      }
-
-      if (compressedBlob.size > MAX_BYTES) {
-        throw new Error(
-          `Compressed image is still too large (${Math.ceil(compressedBlob.size / 1024)} KB). Maximum is 200 KB.`
-        );
-      }
-
-      return new File(
-        [compressedBlob],
-        `${baseName}.${format === "image/webp" ? "webp" : "jpg"}`,
-        { type: format }
-      );
-    }
-
-    function sanitizeForFilename(input) {
-      return String(input || "")
-        .trim()
-        .replace(/\s+/g, "-")
-        .replace(/[\\/:,]/g, "-")
-        .replace(/[^a-zA-Z0-9._-]/g, "");
-    }
-
-    function timestampString() {
-      const d = new Date();
-
-      const p =
-        v => String(v).padStart(2, "0");
-
-      return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}_${p(d.getHours())}-${p(d.getMinutes())}-${p(d.getSeconds())}`;
-    }
-
-    function filenameFor(slot, file) {
-      const u =
-        sanitizeForFilename(
-          document.getElementById("userName").value ||
-          "UnknownUser"
-        );
-
-      const w =
-        sanitizeForFilename(
-          document.getElementById("waterType").value ||
-          "Other"
-        );
-
-      const s =
-        sanitizeForFilename(
-          document.getElementById("sampleID").value ||
-          "UnknownSample"
-        );
-
-      const ext =
-        (file.name.split(".").pop() || "jpg").toLowerCase();
-
-      return `EcoExposure_${slot}_${u}_${w}_${s}_${timestampString()}.${ext}`;
-    }
-
-    async function uploadOneImage(slotID, slot) {
-      const originalBlob = capturedPhotos[slotID] || null;
-
-      if (!originalBlob) {
-        return null;
-      }
-
-      const file = await compressImage(
-        originalBlob,
-        `EcoExposure_${slot}_${timestampString()}`
-      );
-
-      const path =
-        `${currentUser.id}/${filenameFor(slot,file)}`;
-
-      const { error } =
-        await supabaseClient.storage
-       .from("sample-images")
-          .upload(
-            path,
-            file,
-            {
-              cacheControl: "3600",
-              upsert: false,
-              contentType: file.type
-            }
-          );
-
-      if (error) {
-        throw new Error(
-          `${slot} image upload failed: ${error.message}`
-        );
-      }
-
-      return path;
-    }
-
-    async function saveEntry() {
-      const status =
-        document.getElementById("saveStatus");
-
-      status.textContent =
-        "Checking login...";
-
-      if (!currentUser) {
-        await requireLogin();
-      }
-
-      if (!currentUser) {
-        return;
-      }
-
-      const userName =
-        document.getElementById("userName")
-          .value.trim();
-
-      const sampleID =
-        document.getElementById("sampleID")
-          .value.trim();
-
-      const hasImage =
-        Object.keys(imageSlots).some(id => Boolean(capturedPhotos[id]));
-
-      const captureStage =
-        document.querySelector(
-          'input[name="captureStage"]:checked'
-        )?.value || "";
-
-      if (!currentKit) {
-        status.textContent =
-          "Scan and verify a kit QR code before saving.";
-        return;
-      }
-
-      if (
-        !userName ||
-        !sampleID ||
-        !captureStage ||
-        !hasImage
-      ) {
-        status.textContent =
-          "Required: User Name, Sample ID, Capture Stage, and at least one image.";
-        return;
-      }
-
-      try {
-        status.textContent =
-          "Uploading photos...";
-
-        const top_photo =
-          await uploadOneImage(
-            "topImage",
-            "top"
-          );
-
-        const top_grid_photo =
-          await uploadOneImage(
-            "topGridImage",
-            "top_grid"
-          );
-
-        const side_photo =
-          await uploadOneImage(
-            "sideImage",
-            "side"
-          );
-
-        const closeup_photo =
-          await uploadOneImage(
-            "closeUpImage",
-            "closeup"
-          );
-
-        const other_photo =
-          await uploadOneImage(
-            "otherImage",
-            "other"
-          );
-
-        status.textContent =
-          "Saving sample...";
-
-        const rpcArgs = {
-          p_kit_id: currentKit.kit_id,
-          p_user_name: userName,
-          p_sample_label: sampleID,
-          p_location:
-            document.getElementById("location")
-              .value.trim(),
-          p_water_type:
-            document.getElementById("waterType")
-              .value,
-          p_latitude: latitude,
-          p_longitude: longitude,
-          p_notes:
-            document.getElementById("notes")
-              .value.trim(),
-          p_top_photo: top_photo,
-          p_side_photo: side_photo,
-          p_closeup_photo: closeup_photo,
-          p_other_photo: other_photo,
-          p_capture_stage: captureStage,
-          p_top_grid_photo: top_grid_photo
-        };
-
-        const { data, error } =
-          await supabaseClient.rpc(
-            "save_sample_with_kit",
-            rpcArgs
-          );
-
-        if (error) {
-          throw new Error(
-            `Database save failed: ${error.message}`
-          );
-        }
-
-        const result =
-          data && data[0]
-            ? data[0]
-            : null;
-
-        status.textContent =
-          `✅ Sample saved: ${sampleID}. ${result ? result.remaining_samples : ""} kit submission${result && result.remaining_samples === 1 ? "" : "s"} remaining.`;
-
-        currentKit = null;
-
-        clearDraft(false);
-
-      } catch (e) {
-        status.textContent =
-          e.message;
-      }
-    }
-
-    function clearDraft(updateStatus = true) {
-      [
-        "userName",
-        "location",
-        "sampleID",
-        "notes"
-      ].forEach(
-        id =>
-          document.getElementById(id).value = ""
-      );
-
-      document.getElementById("waterType").value =
-        "Other";
-
-      Object.entries({
-        topImage: "topPreview",
-        topGridImage: "topGridPreview",
-        sideImage: "sidePreview",
-        closeUpImage: "closeUpPreview",
-        otherImage: "otherPreview"
-      }).forEach(([i,p]) => {
-        delete capturedPhotos[i];
-
-        const pr = document.getElementById(p);
-        if (pr.dataset.objectUrl) {
-          URL.revokeObjectURL(pr.dataset.objectUrl);
-          delete pr.dataset.objectUrl;
-        }
-
-        pr.style.display = "none";
-        pr.removeAttribute("src");
-
-        const capturedLabel = document.getElementById(i + "Captured");
-        if (capturedLabel) capturedLabel.style.display = "none";
-      });
-
-      latitude = null;
-      longitude = null;
-      currentKit = null;
-
-      document.getElementById("gpsStatus").textContent =
-        "No GPS location captured yet.";
-
-      document.getElementById("qrStatus").textContent =
-        "Kit not yet verified.";
-
-      if (updateStatus) {
-        document.getElementById("saveStatus").textContent =
-          "Draft cleared.";
-      }
-    }
-
-    requireLogin();
   </script>
 </body>
 </html>
